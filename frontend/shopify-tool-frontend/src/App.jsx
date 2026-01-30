@@ -1,32 +1,39 @@
 import { useState, useEffect } from 'react';
 
+// 1. UPDATE THIS URL to your Render Backend URL
+const API_URL = "https://furfond-backend.onrender.com/api/content";
+
 export default function App() {
   const [data, setData] = useState(null);
   const [editMode, setEditMode] = useState(false);
 
-  // 1. FETCH DATA FROM BACKEND
+  // FETCH DATA FROM LIVE BACKEND
   useEffect(() => {
-    fetch('http://localhost:5000/api/content')
+    fetch(API_URL)
       .then(res => res.json())
       .then(val => setData(val))
       .catch(err => console.error("API Error:", err));
   }, []);
 
-  // 2. SAVE DATA TO BACKEND
+  // SAVE DATA TO LIVE BACKEND
   const saveChanges = () => {
-    fetch('http://localhost:5000/api/content', {
+    fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    }).then(() => {
-      setEditMode(false);
-      alert("FurFond Content Updated!");
-    });
+    })
+    .then(res => {
+      if (res.ok) {
+        setEditMode(false);
+        alert("FurFond Content Updated Successfully!");
+      }
+    })
+    .catch(err => alert("Error saving changes. Check console."));
   };
 
   if (!data) return (
-    <div className="h-screen flex items-center justify-center bg-slate-900 text-white font-black tracking-widest uppercase italic">
-      Initializing FurFond...
+    <div className="h-screen flex items-center justify-center bg-slate-900 text-white font-black tracking-widest uppercase italic text-center px-6">
+      <div className="animate-pulse">Initializing FurFond Experience...</div>
     </div>
   );
 
@@ -51,6 +58,7 @@ export default function App() {
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-10 bg-slate-950/70 backdrop-blur-[1px]"></div>
         
+        {/* Assets in public folder work with /filename.ext */}
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0">
           <source src="/bg-video.mp4" type="video/mp4" />
         </video>
@@ -70,7 +78,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* --- PRODUCT SPECIFICATIONS SECTION --- */}
+      {/* --- PRODUCT SPECIFICATIONS --- */}
       <section className="py-32 px-6 bg-slate-950 text-white border-t border-slate-800">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-24 items-center">
           <div>
@@ -88,15 +96,14 @@ export default function App() {
             </div>
           </div>
 
-          {/* IMAGE COMPONENT */}
           <div className="relative group">
             <div className="absolute -inset-10 bg-green-500/10 blur-[100px] rounded-full group-hover:bg-green-500/20 transition-all duration-700"></div>
             <div className="relative bg-slate-900 rounded-[3rem] p-4 border border-slate-800 shadow-2xl overflow-hidden">
-            <img 
-              src="/comb-preview.png" 
-              alt="FurFond Comb Design" 
-              className="w-full h-auto rounded-[2.5rem] object-cover transform group-hover:scale-105 transition-transform duration-700"
-            />
+              <img 
+                src="/comb-preview.png" 
+                alt="FurFond Comb Design" 
+                className="w-full h-auto rounded-[2.5rem] object-cover transform group-hover:scale-105 transition-transform duration-700"
+              />
                <div className="absolute bottom-8 left-8 bg-green-500 text-white px-4 py-2 rounded-full text-[10px] font-black tracking-widest uppercase shadow-xl">
                   Cat Comb
                </div>
@@ -109,7 +116,7 @@ export default function App() {
       {editMode && (
         <>
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50" onClick={() => setEditMode(false)} />
-          <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-[60] p-12 flex flex-col border-l-8 border-green-500">
+          <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-[60] p-12 flex flex-col border-l-8 border-green-500 animate-in slide-in-from-right duration-500">
             <h3 className="text-4xl font-black tracking-tighter mb-12 uppercase italic">Editor</h3>
             <div className="space-y-10 flex-1 overflow-y-auto pr-2">
               <div className="space-y-2">
@@ -121,7 +128,7 @@ export default function App() {
                 <textarea className="w-full border-b-4 border-slate-100 focus:border-green-600 py-4 outline-none text-slate-500 text-lg transition font-medium" rows="4" value={data.heroSubtitle} onChange={e => setData({...data, heroSubtitle: e.target.value})} />
               </div>
             </div>
-            <button onClick={saveChanges} className="mt-12 w-full bg-black text-white py-6 rounded-2xl font-black hover:bg-green-600 transition-all uppercase italic tracking-widest shadow-2xl">
+            <button onClick={saveChanges} className="mt-12 w-full bg-black text-white py-6 rounded-2xl font-black hover:bg-green-600 transition-all uppercase italic tracking-widest shadow-2xl hover:scale-[1.02] active:scale-[0.98]">
               Publish Updates
             </button>
           </div>
